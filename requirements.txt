@@ -1,0 +1,9 @@
+numpy
+torch
+opencv-python
+torchvision
+fastdtw
+pandas
+click
+tqdm
+scipy
