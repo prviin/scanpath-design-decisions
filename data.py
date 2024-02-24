@@ -16,7 +16,8 @@ def process_csv(
         file_name: address of the csv file
         calculate_fixation_duration: not implemented yet
         minimum_number_of_fixations: the fixations with less than this number will be removed
-        is_new_data: you can find the structure of the new data in the `UEyes_dataset` folder 'https://zenodo.org/records/8010312'
+        is_new_data: you can find the structure of the new data in the `UEyes_dataset` folder
+        Check 'https://zenodo.org/records/8010312'
 
     Returns:
 

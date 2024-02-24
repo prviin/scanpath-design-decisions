@@ -361,7 +361,6 @@ def saccade_angle_csv(
         df["height"] = height
         df["username"] = "test"
         df["timestamp"] = 0.0
-        # I seriously don't have any idea why we need these two last columns :)
         # rearrange the columns
         df = df[["image", "width", "height", "username", "x", "y", "timestamp"]]
         df["radius"] = radius

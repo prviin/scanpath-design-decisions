@@ -17,6 +17,7 @@ class AlternationAlgorithm(Enum):
     ZERO = "zero"
     SALT_AND_PEPPER = "salt_and_pepper"
     PIXEL_PERMUTATION = "pixel_permutation"
+    # This is not used in paper, but it's added for more experiments
 
 
 def salt_and_pepper(
