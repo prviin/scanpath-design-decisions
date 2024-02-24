@@ -1,8 +1,6 @@
 import os
 import random
-from collections import deque
 from enum import Enum
-from functools import lru_cache
 from typing import Callable
 
 import cv2
@@ -129,9 +127,6 @@ def predict(
             altered_image = cv2.GaussianBlur(image, (901, 901), 50)
         elif image_alter_function == AlternationAlgorithm.NOISE:
             altered_image = image + np.random.normal(100, 15, image.shape)
-            # altered_image -= altered_image.min()
-            # altered_image /= altered_image.max()
-            # altered_image *= 255
         elif image_alter_function == AlternationAlgorithm.ZERO:
             altered_image = np.zeros_like(image)
         elif image_alter_function == AlternationAlgorithm.SALT_AND_PEPPER:
@@ -156,10 +151,8 @@ def predict(
         )
     image = torch.from_numpy(image).to(device)
     altered_image = torch.from_numpy(altered_image).type(torch.float32).to(device)
-    # altered_image = torch.from_numpy(altered_image).to(device)
     centerbias = centerbias_template - torch.logsumexp(centerbias_template, dim=(0, 1))
     if initial_fixation_points is None:
-        # fixation_points = [[image.shape[0] - 5, image.shape[1] // 2]] * 4
         fixation_points = [[image.shape[0] // 2, image.shape[1] // 2]] * 4
         # deep gaze 3 model only accepts 4 fixation points
     else:
@@ -176,9 +169,6 @@ def predict(
     # Fixation points will be returned as a list of [x, y] coordinates
     mask: torch.Tensor = torch.zeros_like(image, dtype=torch.float).to(device)
     for i in range(number_of_fixations):
-        # i = 0
-        # while len(fixation_points) < number_of_fixations + 4:
-        #     i += 1
         if verbose:
             print(
                 f"Fixation {i + 1}/{number_of_fixations}, founded {len(fixation_points)} fixation points"
@@ -187,7 +177,6 @@ def predict(
         mask = create_mask(mask, fixation_points, radius, gamma, mask_type, device)
 
         new_image = image * (1 - mask) + altered_image * mask
-        # new_image = image * (1 - mask).type(torch.int)
         new_image = new_image.permute(2, 0, 1).unsqueeze(0)
         # TODO: this line may be time consuming, we may need to change it
         if verbose:
@@ -202,7 +191,6 @@ def predict(
             image.device
         )
         # since the deep gaze 3 model only accepts 4 fixation points, we use the last 4 fixation points
-        # fixation_points_tensor = torch.tensor(fixation_points).to(image.device)
         assert fixation_points_tensor.shape[1] == 2, (
             "fixation points must have two columns, but got "
             f"{fixation_points_tensor.shape[1]} columns"
@@ -222,7 +210,6 @@ def predict(
         log_density_prediction = (100 + model_output.squeeze()) * (
             1 - mask_
         ) - mask_ * 1000
-        # log_density_prediction = (100 + model_output.squeeze()) * (1 - mask_)
 
         # Find the brightest pixel in the probaility map
         brightest_pixel = (
@@ -265,7 +252,6 @@ def create_mask(
     if device is None:
         device = torch.device("cuda")
     if type == "new":
-        # return create_mask_new(mask, *fixation_points[-1], *radius).to(device)
         return create_mask_new(mask, fixation_points, radius[0], radius[1], gamma).to(
             device
         )
@@ -298,14 +284,6 @@ def create_mask_new(
     mask = torch.zeros_like(mask)
     for fi, (x, y) in enumerate(fixations_point):
         c = gamma ** (len(fixations_point) - fi - 1)
-        # for i in range(max(x - r0, 0), min(x + r0, mask.shape[0])):
-        #     for j in range(max(y - r1, 0), min(y + r1, mask.shape[1])):
-        #         # try:
-        #         #     mask[i][j] = c
-        #         # except IndexError:
-        #         #     # in case of the fixation points are too near to the edges of the mask (i.e. image)
-        #         #     pass
-        #         mask[i][j] = c
         mask[x - r0 : x + r0, y - r1 : y + r1] = c
     return mask
 
@@ -324,7 +302,6 @@ def create_mask_old_circular(
         dist = np.sqrt((X - x) ** 2 + (Y - y) ** 2)
         c = 1 - gamma * (len(fixations_point) - i - 1)
         mask = torch.maximum(mask, torch.from_numpy(dist <= radius) * c)
-        # print(c,i, gamma)
     return torch.unsqueeze(mask, 2).repeat(1, 1, 3)
 
 
@@ -339,13 +316,6 @@ def create_mask_old_rectangle(
     len_fixations = len(fixations_point)
     for fi, (x, y) in enumerate(fixations_point):
         c = 1 - gamma * (len_fixations - fi - 1)
-        # for i in range(x - r0, x + r0):
-        #     for j in range(y - r1, y + r1):
-        #         try:
-        #             mask[i][j] = 1 - 1 / 10 * (len(fixations_point) - fi - 1)
-        #         except IndexError:
-        #             # in case of the fixation points are too near to the edges of the mask (i.e. image)
-        #             pass
         mask[x - r0 : x + r0, y - r1 : y + r1] = c
 
     return mask
@@ -360,7 +330,6 @@ def create_mask_new_circle(
 ) -> torch.Tensor:
     # get the circular mask
     mask = torch.zeros(h, w)
-    # Y, X = np.ogrid[:h, :w]
     X, Y = np.ogrid[:h, :w]
     for i, (x, y) in enumerate(fixations_point):
         c = gamma ** (len(fixations_point) - i - 1)
@@ -384,7 +353,6 @@ def draw_fixation_points(
 ):
     image = cv2.imread(image_address)
     if image_size[0] < 0 or image_size[1] < 0:
-        # image_size = image.shape[:2][:]
         image_size = image.shape[:2][::-1]
         print("image size", image_size)
     resized_image = cv2.resize(image, image_size)
@@ -399,7 +367,6 @@ def draw_fixation_points(
         * np.array([image.shape[1], image.shape[0]])
     )[:number_of_fixations, :]
     print(gt_fixation_points)
-    # resized_image = image.copy()
     if resized_image.shape[:2] != centerbias_template.shape[:2]:
         centerbias_template = cv2.resize(
             centerbias_template, (resized_image.shape[1], resized_image.shape[0])
@@ -411,7 +378,6 @@ def draw_fixation_points(
             image.shape[0] / resized_image.shape[0],
         ]
     )
-    # coef = 1
 
     results = predict(
         model=model,
@@ -424,29 +390,17 @@ def draw_fixation_points(
         centerbias_template=centerbias_template,
         mask_type=mask_type,
         verbose=True,
-        # initial_fixation_points=(
-        #     gt_fixation_points[0][None, :].repeat(4, 0) / coef
-        # ).tolist(),
     )
     results = np.array(results)[:, :]
     print(coef)
-    # print(results64x64)
-    # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
     results = results * coef
     results = results.astype(int)
-    # for i in results64x64:
-    #     print(i)
-    #     print(i[1])
-    #     print(i[0])
-    #     i.sort()
-    # print(results64x64)
-    # print("----------------------------------")
 
     line_color = (0, 0, 0)
 
     print(gt_fixation_points)
-    print("******************************")
+
     draw_point(
         image * 0.6 + 90,
         gt_fixation_points.astype(int),
@@ -499,29 +453,16 @@ if __name__ == "__main__":
     # res = predict(model=model, image=image, number_of_fixations=10, radius=.05, device=device,
     #               image_alter_function=AlternationAlgorithm.PIXEL_PERMUTATION, centerbias_template=centerbias,
     #               verbose=True, gamma=0.9)
-    # draw_fixation_points(
-    #     image,
-    #     (225,225),
-    #     model,
-    #     number_of_fixations=10,
-    #     radius=0.2,
-    #     gamma=0.1,
-    #     image_alter_function=AlternationAlgorithm.ZERO,
-    #     device=device,
-    #     centerbias_template=centerbias,
-    #     mask_type="new_circle",
-    #     csv_folders="../UEyes_dataset/eyetracker_logs",
-    # )
     draw_fixation_points(
         image,
-        (1080, 1080),
+        (225, 225),
         model,
         number_of_fixations=10,
-        radius=0.088,
-        gamma=0.25,
+        radius=0.2,
+        gamma=0.1,
         image_alter_function=AlternationAlgorithm.ZERO,
         device=device,
         centerbias_template=centerbias,
-        mask_type="new",
+        mask_type="new_circle",
         csv_folders="../UEyes_dataset/eyetracker_logs",
     )

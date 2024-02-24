@@ -77,11 +77,6 @@ class EvaluationFunctions:
         """
         Compute the eyenalysis distance between two Numpy arrays of the same length.
         """
-
-        # dist = np.zeros((p.shape[0], q.shape[0]))
-        # for idx_1, fix_1 in np.ndenumerate(p):
-        #   for idx_2, fix_2 in np.ndenumerate(q):
-        #       dist[idx_1, idx_2] = euclidean(fix_1, fix_2)
         dist = cdist(p, q, "euclidean") ** 2
 
         return (1 / (p.shape[0] + q.shape[0])) * (
@@ -165,14 +160,9 @@ class EvaluationFunctions:
         q = q[:min_len, :2]
 
         c, _ = EvaluationFunctions.__coincidence_matrix(p, q, threshold)
-        R = np.triu(c, 1).sum() + EPS
-        # print(c, np.triu(c, 1), sep="\n")
         C = np.sum(c)
-        # print(C)
 
         c = c.astype(int)
-
-        # print(R)
 
         HL = 0
         HV = 0
@@ -197,15 +187,6 @@ class EvaluationFunctions:
 if __name__ == "__main__":
     p = np.array([[1, 2], [3, 4], [1, 2], [1, 2], [7, 8], [9, 10]]) / 10
     q = np.array([[1, 2], [1, 2], [1, 3], [6, 7], [8, 9]]) / 10
-    # print("dtw", EvaluationFunctions.dtw(p, q))
-    # print("tde", EvaluationFunctions.tde(p, q))
-    # print("eyenalysis", EvaluationFunctions.eyenalysis(p, q))
-    # print("recurrence", EvaluationFunctions.recurrence(p, q))
-    # print("corm", EvaluationFunctions.corm(p, q))
-    # print("determinism", EvaluationFunctions.determinism(p, q))
-    # print("laminarity", EvaluationFunctions.laminarity(p, q))
-    # print(EvaluationFunctions.laminarity(q, q))
-    # print(EvaluationFunctions.laminarity(p, p))
     for func_name, func in EvaluationFunctions.__dict__.items():
         if not func_name.startswith("_") and callable(func.__func__):
             print(func_name, func(p, q))

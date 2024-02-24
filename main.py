@@ -42,6 +42,8 @@ def cli():
     help="Radius of the fixation it should be a float between 0 and 1",
 )
 @click.option("--gamma", type=float, help="masking parameter")
+# This is not covered in the paper, but this was for extra experiments
+# to see the effect of noises types in masking the image
 @click.option("--noise", default="NOISE", type=str, help="Noise to add to the fixation")
 @click.option(
     "--output",
@@ -57,6 +59,7 @@ def cli():
     default=-1,
     help="Maximum number of images to process (for debugging purposes) (default: -1, all images)",
 )
+# This is for using different datasets
 @click.option(
     "--is-new-data",
     "-s",
@@ -79,6 +82,9 @@ def cli():
     default=None,
     help="it should be a list of categories to exclude, separated by comma",
 )
+# This is for using different masks for the images (new, old_circle, old_rectangle)
+# new is the one used in the paper as new IOR and old_circle is the one used in the paper as old IOR
+# old_rectangle is the one that not used in the paper but we used it for extra experiments
 @click.option(
     "--mask-type",
     "-k",
@@ -150,9 +156,7 @@ def main(
         result = {i: defaultdict(list) for i in images_category["Category"].unique()}
     else:
         result = defaultdict(list)
-    i = 0
     for i, (image_address, user_id) in enumerate(tqdm(df.index.unique())):
-        # for image_address in tqdm(df.index.levels[0]):
         if images_category is not None:
             if image_address not in images_category.index:
                 continue
@@ -178,7 +182,6 @@ def main(
             mask_type=mask_type,
             gamma=gamma,
         )
-        # for user_id in df.loc[image_address].index:
         gt_fixation_points = df[df.index == (image_address, user_id)].values
         predicted_fixation_points = np.array(predicted_fixation_points) / np.array(
             [width, height]
@@ -225,11 +228,6 @@ def main(
         }
         if output_extension == "json":
             raise NotImplementedError("Saving as json is not implemented yet")
-            # results_dict = results64x64.T.to_dict()
-            # results_dict.update(added_values)
-            # print(results_dict)
-            # with open(output, 'w') as f:
-            #     json.dump(results_dict, f)
 
         else:
             for k, v in added_values.items():
@@ -351,11 +349,6 @@ def saccade_angle_csv(
             mask_type=mask_type,
             gamma=gamma,
         )
-        # for user_id in df.loc[image_address].index:
-        #     gt_fixation_points = df[df.index == (image_address, user_id)].values
-        #     predicted_fixation_points = np.array(predicted_fixation_points) / np.array(
-        #         [width, height]
-        #     )
         # we need to convert the fixation points from the resized image to the original image
         fixation_points = (
             np.array(fixation_points)
@@ -376,7 +369,7 @@ def saccade_angle_csv(
         df["mask_type"] = mask_type
         # im putting these columns just for convenience, we may not need them :/
         all_dfs.append(df)
-    # as a recall, this function ensures we never overwrite a file
+    # As a recall, this function ensures we never overwrite a file
     save_to_file(pd.concat(all_dfs), output, index=False, lineterminator="\n\n")
 
 
