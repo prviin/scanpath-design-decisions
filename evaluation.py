@@ -185,7 +185,7 @@ class EvaluationFunctions:
 
 
 if __name__ == "__main__":
-    p = np.array([[1, 2], [3, 4], [1, 2], [1, 2], [7, 8], [9, 10]]) / 10
+    p = np.array([[1, 2], [3, 4], [1, 2], [1, 2], [7, 8], [9, 10], [11, 12]]) / 10
     q = np.array([[1, 2], [1, 2], [1, 3], [6, 7], [8, 9]]) / 10
     for func_name, func in EvaluationFunctions.__dict__.items():
         if not func_name.startswith("_") and callable(func.__func__):
