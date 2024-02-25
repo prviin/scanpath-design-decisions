@@ -52,14 +52,15 @@ Options:
                                   Maximum number of images to process (for
                                   debugging purposes) (default: -1, all
                                   images)
-  --noise                         ZERO|GAUSSIAN|SALT_AND_PEPPER|POISSON|NOISE
+  --noise TEXT                    Noise to add to the fixation
+  
   -t, --images-category PATH      it should be a csv file with two columns:
                                   `Image Name` and `Category`
   -k, --mask-type TEXT            can be one of these: "new, "old_circle"
 
-
-for instance for new data run:
 ```
+for instance for new data run:
+
 ```
 python main.py -i ../UEyes_dataset/images \
                -c ../UEyes_dataset/eyetracker_logs \
