@@ -29,8 +29,33 @@ saliency_modeling_issues
 ## run grid search experiments
 you can run the grid search experiments using the `run_statistical.sh`. 
 
-**NOTE**: the command line address should be in the `Deepgaze++` folder
-you can run the `python main.py --help` to see the arguments' description.
+**NOTE**: This script generates fixations for the given images and
+
+Options:
+  -i, --image_folders PATH
+  -c, --csv_folders PATH
+  -d, --device TEXT               Device to use for training
+  -n, --number_of_fixations INTEGER
+                                  Number of fixations to generate, if zero it
+                                  will be same as the number of fixations in
+                                  GT
+  -w, --width INTEGER             Width of the image
+  -h, --height INTEGER            Height of the image
+  -r, --radius FLOAT              Radius of the fixation it should be a float
+                                  between 0 and 1
+  --gamma FLOAT                   masking parameter
+  -o, --output PATH               Output file to save the results64x64, it can
+                                  be json or csv (if not provided, it will not
+                                  be saved)
+  -m, --max-number-of-images INTEGER
+                                  Maximum number of images to process (for
+                                  debugging purposes) (default: -1, all
+                                  images)
+  --noise                         ZERO|GAUSSIAN|SALT_AND_PEPPER|POISSON|NOISE
+  -t, --images-category PATH      it should be a csv file with two columns:
+                                  `Image Name` and `Category`
+  -k, --mask-type TEXT            can be one of these: "new, "old_circle"
+
 
 for instance for new data run:
 
