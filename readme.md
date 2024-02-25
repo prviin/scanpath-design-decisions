@@ -32,6 +32,7 @@ you can run the grid search experiments using the `run_statistical.sh`.
 **NOTE**: This script generates fixations for the given images and
 
 Options:
+```
   -i, --image_folders PATH
   -c, --csv_folders PATH
   -d, --device TEXT               Device to use for training
@@ -58,7 +59,7 @@ Options:
 
 
 for instance for new data run:
-
+```
 ```
 python main.py -i ../UEyes_dataset/images \
                -c ../UEyes_dataset/eyetracker_logs \
