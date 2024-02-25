@@ -29,7 +29,7 @@ saliency_modeling_issues
 ## run grid search experiments
 you can run the grid search experiments using the `run_statistical.sh`. 
 
-**NOTE**: This script generates fixations for the given images and
+**NOTE**: main script generates fixations for the given images and
 
 Options:
 ```
