@@ -1,3 +1,22 @@
+"""
+File: evaluation.py
+Author: Parvin Emami
+Paper: https://dl.acm.org/doi/10.1145/3655602
+This is a modified version of the [Saliency](https://github.com/rAm1n/saliency/tree/master) repository.
+Paper of evaluation: https://link.springer.com/article/10.3758/s13428-020-01441-0
+Modified: 30 May 2024
+Description: This file contains the implementation of the evaluation functions used in the paper.
+The evaluation functions are:
+- DTW
+- TDE
+- Eyenalysis
+- Recurrence
+- CORM
+- Determinism
+- Laminarity
+
+"""
+
 import numpy as np
 from fastdtw import fastdtw
 from scipy.spatial.distance import cdist, euclidean
@@ -52,9 +71,8 @@ class EvaluationFunctions:
             distances.append(min(norms) / k)
 
         # At this point, the list "distances" contains the value of
-        # minimum distance for each simulated k-vec
-        # according to the distance_mode. Here we compute the similarity
-        # between the two scan-paths.
+        # minimum distance for each simulated k-vec according to the distance_mode.
+        # Here we compute the similarity between the two scan-paths.
         if distance_mode == "Mean":
             return sum(distances) / len(distances)
         elif distance_mode == "Hausdorff":
@@ -62,20 +80,13 @@ class EvaluationFunctions:
 
         raise ValueError(f"Unknown distance mode: {distance_mode}.")
 
-    #  def eyenalysis(p, q):
-    #    """
-    #    Compute the eyenalysis distance between two Numpy arrays of the same length.
-
-    #    Let dist(MxN) be the two-dimensional pair-wise
-    #    Euclidean distance of every fixation in p with all other fixations in Q
-    #    """
-    #    dist = cdist(p, q, 'euclidean') ** 2
-    #    return (dist.min(axis=0).sum() + dist.min(axis=1).sum()) / (max(p.shape[0], q.shape[0]
-
+    # This function is modified by Parvin Emami
     @staticmethod
     def eyenalysis(p, q):
         """
         Compute the eyenalysis distance between two Numpy arrays of the same length.
+        See https://bop.unibe.ch/JEMR/article/view/2326
+
         """
         dist = cdist(p, q, "euclidean") ** 2
 
@@ -87,6 +98,7 @@ class EvaluationFunctions:
     def __coincidence_matrix(p, q, threshold=0.05):
         """
         Compute alignment matrix between two Numpy sequences of the same length.
+        See https://link.springer.com/content/pdf/10.3758%2Fs13428-014-0550-3.pdf
         """
         min_len = p.shape[0] if (p.shape[0] < q.shape[0]) else q.shape[0]
         p = p[:min_len, :2]
@@ -160,7 +172,7 @@ class EvaluationFunctions:
         q = q[:min_len, :2]
 
         c, _ = EvaluationFunctions.__coincidence_matrix(p, q, threshold)
-        C = np.sum(c)
+        C = np.sum(c) + EPS
 
         c = c.astype(int)
 
@@ -185,6 +197,7 @@ class EvaluationFunctions:
 
 
 if __name__ == "__main__":
+    # Test the evaluation functions
     p = np.array([[1, 2], [3, 4], [1, 2], [1, 2], [7, 8], [9, 10], [11, 12]]) / 10
     q = np.array([[1, 2], [1, 2], [1, 3], [6, 7], [8, 9]]) / 10
     for func_name, func in EvaluationFunctions.__dict__.items():

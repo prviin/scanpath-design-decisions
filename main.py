@@ -1,3 +1,13 @@
+"""
+File: main.py
+Author: Pavin Emami
+Paper: https://dl.acm.org/doi/10.1145/3655602
+Modified: 2024-05-30
+Description: This file contains the main script to generate fixations for the given images
+and save the results64x64 in a csv file, for example, run:
+`python main.py saccade-angle-csv -i ../UEyes_dataset/images -n 10 -w 225 -h 225 -r 0.2 -g 0.5 -o results64x64.csv`
+"""
+
 import glob
 import json
 import os.path
@@ -22,9 +32,11 @@ def cli():
 
 
 @cli.command()
+# the inputs are the folders that contain the images and the csv files that contain the ground truth fixations
 @click.option("--image_folders", "-i", type=click.Path(exists=True))
 @click.option("--csv_folders", "-c", type=click.Path(exists=True))
 @click.option("--device", "-d", default="cuda", help="Device to use for training")
+# the design parameters for the scanpath model
 @click.option(
     "--number_of_fixations",
     "-n",
@@ -45,13 +57,15 @@ def cli():
 # This is not covered in the paper, but this was for extra experiments
 # to see the effect of noises types in masking the image
 @click.option("--noise", default="NOISE", type=str, help="Noise to add to the fixation")
+# the output file to save the results
 @click.option(
     "--output",
     "-o",
     type=click.Path(exists=False),
     default=None,
-    help="Output file to save the results64x64, it can be json or csv (if not provided, it will not be saved)",
+    help="Output file to save the results, it can be json or csv (if not provided, it will not be saved)",
 )
+# This is for debugging purposes, to limit the number of images to process
 @click.option(
     "--max-number-of-images",
     "-m",
@@ -68,6 +82,7 @@ def cli():
     help="If the data is new, you can find the new data in `UEyes_dataset` folder"
     "and the old data in `data` folder",
 )
+# This is for using different categories for the images
 @click.option(
     "--images-category",
     "-t",
@@ -75,6 +90,7 @@ def cli():
     default=None,
     help="it should be a csv file with two columns: `Image Name` and `Category`",
 )
+# This is for excluding some categories from the results
 @click.option(
     "--exclude-categories",
     "-e",
@@ -84,7 +100,7 @@ def cli():
 )
 # This is for using different masks for the images (new, old_circle, old_rectangle)
 # new is the one used in the paper as new IOR and old_circle is the one used in the paper as old IOR
-# old_rectangle is the one that not used in the paper but we used it for extra experiments
+# old_rectangle is the one that not used in the paper but we used it for extra experiments to see the effect of the mask
 @click.option(
     "--mask-type",
     "-k",
@@ -110,7 +126,11 @@ def main(
     mask_type,
 ):
     """
-    This script generates fixations for the given images and
+    This script generates fixations for the given images and saves the results in a csv file,
+    for example, run:
+    `python main.py main -i ../UEyes_dataset/images -c ../UEyes_dataset/fixations
+    -n 10 -w 225 -h 225 -r 0.2 -g 0.5 -o results.csv`
+
     """
     output_extension = None
     if output is not None:
@@ -139,7 +159,7 @@ def main(
         images_category = pd.read_csv(images_category, delimiter=";")[
             ["Image Name", "Category"]
         ]
-        # check if 'Image Name` is unique
+        # check if 'Image Name' is unique
         if len(images_category["Image Name"].unique()) != len(images_category):
             raise ValueError("Image Name column should be unique")
 
@@ -314,9 +334,12 @@ def saccade_angle_csv(
     mask_type,
 ):
     """
-    This script generates fixations for the given images and saves the results64x64 in a csv file,
+    This script generates fixations for the given images and saves the results in a csv file,
     for example, run:
-    `python main.py saccade-angle-csv -i ../UEyes_dataset/images -n 10 -w 225 -h 225 -r 0.2 -g 0.5 -o results64x64.csv`
+    `python main.py saccade-angle-csv -i ../UEyes_dataset/images -n 10 -w 225 -h 225 -r 0.2 -g 0.5 -o results.csv`
+    The difference between this and the main function is that this function saves the fixations in a csv file
+    with the following columns:
+    `image`, `width`, `height`, `username`, `x`, `y`, `timestamp`, `radius`, `gamma`, `mask_type`
     """
     # check the inputs
     if noise is None:

@@ -1,3 +1,45 @@
+"""
+File: data.py
+Author: Parvin Emami
+Paper: https://dl.acm.org/doi/10.1145/3655602
+Created: 2024-05-31
+Modified: 2024-05-31
+Description: This Python script reads the csv files from the eyetracker and processes them.
+             The csv files should be in the following format:
+             - The name of the csv file should be in the "\d\d_kh\d\d\d_fixations.csv" format
+             - The csv file should contain the following columns:
+               - MEDIA_NAME: the name of the image
+               - BPOGX: the x coordinate of the fixation
+               - BPOGY: the y coordinate of the fixation
+               - BPOGV: the validity of the fixation
+             - The csv files should be in the following folders:
+               - The name of the folder should be in the "kh\d\d\d" format
+               - The folders should be in the "data" folder
+             - The script will read all the csv files and create a dataframe with the following columns:
+               - image_name: the name of the image
+               - user_id: the id of the user
+               - x: the x coordinate of the fixation
+               - y: the y coordinate of the fixation
+               - timestamp: the timestamp of the fixation (if calculate_fixation_duration is True)
+             - The script will remove the fixations with the following conditions:
+               - The fixations with the BPOGV less than 1
+               - The fixations with the BPOGX or BPOGY less than 0 or greater than 1
+               - The fixations with the BPOGX and BPOGY equal to 0.5
+               - The fixations with less than minimum_number_of_fixations
+             - The script will calculate the duration of each fixation if calculate_fixation_duration is True
+               and add it to the dataframe
+             - The script will return the dataframe
+             - The script will print the average number of fixation points and the standard deviation of the number of
+               fixation points
+             - The script will raise an error if no csv files are found
+             - The script will raise an error if the calculate_fixation_duration is True
+               because this feature is not implemented yet
+             - The script will raise an error if the csv files are not in the correct format
+             - The script will raise an error if the folders are not in the correct format
+             - The script will raise an error if the folders are not in the correct location
+             - The script will raise an error if the csv files are not in the correct location
+"""
+
 import glob
 import os
 import re
@@ -66,8 +108,8 @@ def process_data(
                      each folder should be named with the  "kh\d\d\d" format
                      csv files should be named with the "\d\d_kh\d\d\d_fixations.csv" format
         minimum_number_of_fixations: the minimum number of fixations for each image
-        is_new_data: you can find the structure of the new data in the `UEyes_dataset` folder and the old data in the
-                     `data` folder
+        # is_new_data: you can find the structure of the new data in the `UEyes_dataset` folder and the old data in the
+        #              `data` folder
 
     Returns: A dataframe with the data from all the csv files, the indexes are:
              - image_name: the name of the image
