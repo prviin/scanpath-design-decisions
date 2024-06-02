@@ -10,5 +10,5 @@ Statistical_test.py
 tmp.py
 readme.md
 __pycache__/
-run_statistical_test.sh
+run_statistical_test*.sh
 
