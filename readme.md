@@ -77,3 +77,5 @@ python main.py main    -i ../UEyes_dataset/test/images \
                        --output test.csv \
                        --images-category ../UEyes_dataset/image_types.csv
 ```
+
+
